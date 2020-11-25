@@ -66,14 +66,14 @@ category_url <- url_builder(
   limit = 999999
 )
 
-county_results <- get_results(url = county_url)
-category_results <- get_results(url = category_url)
+county_sales <- get_results(url = county_url)
+category_sales <- get_results(url = category_url)
 
-head(county_results)
-head(category_results)
+head(county_sales)
+head(category_sales)
 
-write.csv(county_results, 'csv/county_results.csv', row.names = FALSE)
-write.csv(category_results, 'csv/category_results.csv', row.names = FALSE)
+write.csv(county_sales, 'csv/county_sales.csv', row.names = FALSE)
+write.csv(category_sales, 'csv/category_sales.csv', row.names = FALSE)
 
-usethis::use_data(county_results, overwrite = TRUE)
-usethis::use_data(category_results, overwrite = TRUE)
+usethis::use_data(county_sales, overwrite = TRUE)
+usethis::use_data(category_sales, overwrite = TRUE)
