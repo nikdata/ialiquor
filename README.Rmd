@@ -24,7 +24,11 @@ knitr::opts_chunk$set(
 [![GitHub commit](https://img.shields.io/github/last-commit/nikdata/ialiquor)](https://github.com/nikdata/ialiquor/commit/master)
 <!-- badges: end -->
 
-The **{ialiquor}** package provides a summary of the monthly liquor sales by county and by liquor type in the State of Iowa.
+The **{ialiquor}** package provides a summary of the monthly liquor sales by county and by liquor type in the State of Iowa. This dataset comes from the Iowa Data Portal and is limited to beverages classified as [Class E](https://abd.iowa.gov/license-classifications). Class E beverages (as according to Iowa) are:
+
+> For grocery, liquor and convenience stores, etc. Allows for the sale of alcoholic liquor for off-premises consumption in original unopened containers. No sales by the drink. Sunday sales are included. Also allows wholesale sales to on-premises Class A, B, C and D liquor licensees but must have a TTB Federal Wholesale Basic Permit.
+
+In other words, this dataset is limited to retailers that are essentially selling "hard" liquor. This does not include data for beer sales (which is a Class C license) or wine (which is a Class B license).
 
 **WIP**
 
@@ -39,7 +43,76 @@ devtools::install_github("nikdata/ialiquor", ref = "main")
 
 ## Usage
 
-### Total Sales by County
+The {ialiquor} package provides a monthly summary of the alcohol (class E) sales in the State of Iowa. There are two different datasets contained that provide total revenue, total cost to state, total bottles sold, and total volume sold (in liters) by either category (e.g., imported vodka, spearmint schnapps, etc.) or county name.
 
+### Preview of County Sales
 
-### Total Sales by Liquor Category
+```{r}
+library(ialiquor)
+library(dplyr)
+data('county_sales')
+
+dplyr::glimpse(county_sales)
+
+```
+
+### Preview of Category Sales
+
+```{r}
+library(ialiquor)
+library(dplyr)
+
+data('category_sales')
+
+dplyr::glimpse(category_sales)
+```
+
+### Potential Use Cases
+
+#### Monthly Profit by Year Month
+
+```{r, fig.height = 5, fig.width=7, fig.retina=2}
+library(dplyr)
+library(ggplot2)
+library(ialiquor)
+
+data("county_sales")
+
+county_sales %>%
+  dplyr::group_by(year_mon) %>%
+  dplyr::summarize(
+    total_cost = sum(state_cost),
+    total_revenue = sum(retail_revenue),
+    state_profit = (total_revenue-total_cost)/1000000,
+    .groups = 'drop'
+  ) %>%
+  ggplot2::ggplot(ggplot2::aes(x = year_mon, y = state_profit)) +
+  ggplot2::geom_line(color = 'blue') +
+  ggplot2::geom_point(ggplot2::aes(y = state_profit), color = 'blue') +
+  ggplot2::labs(x = 'Month Year', y = "Profit in Millions (US$)", title = 'Monthly Alcohol Profit', caption = 'Source: Iowa Data Portal') +
+  ggplot2::ylim(0,15) +
+  ggplot2::scale_x_datetime(date_breaks = '6 months') +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1), 
+                 panel.border = ggplot2::element_rect(color = 'darkgray', fill = NA, size = 2))
+```
+
+### Top 10 Alcohol Categories by Liters Sold
+
+```{r}
+
+library(dplyr)
+library(ialiquor)
+
+data("category_sales")
+
+category_sales %>%
+  dplyr::group_by(type) %>%
+  dplyr::summarize(
+    total_liters_sold = sum(liters_sold),
+    .groups = 'keep'
+  ) %>%
+  dplyr::arrange(desc(total_liters_sold)) %>%
+  dplyr::top_n(10)
+
+```
+

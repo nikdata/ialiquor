@@ -1,5 +1,8 @@
 ## code to prepare `DATASET` dataset goes here
 
+# import
+`%>%` <- magrittr::`%>%`
+
 # Data retrieval
 
 # define function to build the Socrata SoQL URL - CAUTION: No error handling built here
@@ -71,6 +74,54 @@ category_sales <- get_results(url = category_url)
 
 head(county_sales)
 head(category_sales)
+
+# need to convert category_name to all lower case
+category_sales <- category_sales %>%
+  dplyr::mutate(
+    category_name = stringr::str_to_lower(category_name)
+  ) %>%
+  dplyr::group_by(
+    year_mon, category_name
+  ) %>%
+  dplyr::summarize(
+    state_cost = sum(state_cost),
+    bottles_sold = sum(bottles_sold),
+    retail_revenue = sum(retail_revenue),
+    liters_sold = sum(liters_sold),
+    .groups = 'keep'
+  ) %>%
+  dplyr::ungroup()
+
+# clear up names & add a higher level category called type
+category_sales <- category_sales %>%
+  dplyr::mutate(
+    type = case_when(
+      is.na(category_name) ~ 'unknown',
+      stringr::str_detect(string = category_name, pattern = 'vodka') ~ 'vodka',
+      stringr::str_detect(string = category_name, pattern = 'gin') & !stringr::str_detect(string = category_name, pattern = 'virgin')  ~ 'gin',
+      stringr::str_detect(string = category_name, pattern = 'schnap') ~ 'schnapps',
+      stringr::str_detect(string = category_name, pattern = 'tequila') ~ 'tequila',
+      stringr::str_detect(string = category_name, pattern = 'brandies') | stringr::str_detect(string = category_name, pattern = 'brandy') ~ 'brandy',
+      stringr::str_detect(string = category_name, pattern = 'rum') ~ 'rum',
+      stringr::str_detect(string = category_name, pattern = 'bourbon') | stringr::str_detect(string = category_name, pattern = 'whisk') | stringr::str_detect(string = category_name, pattern = 'scotch') ~ 'whiskey',
+      stringr::str_detect(string = category_name, pattern = 'beer') ~ 'beer',
+      stringr::str_detect(string = category_name, pattern = 'amaretto') | stringr::str_detect(string = category_name, pattern = 'liqueur') | stringr::str_detect(string = category_name, pattern = 'anise') | stringr::str_detect(string = category_name, pattern = 'creme') ~ 'liqueur',
+      stringr::str_detect(string = category_name, pattern = 'rock') | stringr::str_detect(string = category_name, pattern = 'cocktail') ~ 'cocktail',
+      TRUE ~ 'other'
+    )
+  )
+
+# rearrange columns
+category_sales <- category_sales %>%
+  dplyr::transmute(
+    year_mon,
+    type,
+    category = category_name,
+    state_cost,
+    retail_revenue,
+    bottles_sold,
+    liters_sold
+  )
 
 write.csv(county_sales, 'csv/county_sales.csv', row.names = FALSE)
 write.csv(category_sales, 'csv/category_sales.csv', row.names = FALSE)
