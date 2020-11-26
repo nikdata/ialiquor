@@ -55,7 +55,7 @@ county_url <- url_builder(
   dataset_url = 'https://data.iowa.gov/resource/m3tr-qhgy.csv?',
   select = "date_trunc_ym(date) as year_mon, county, county_number, sum(state_bottle_cost * sale_bottles) as state_cost, sum(sale_bottles) as bottles_sold, sum(sale_dollars) as retail_revenue, sum(sale_liters) as liters_sold",
   group = "date_trunc_ym(date), county, county_number",
-  where = "date >= '2012-01-01T00:00:00.000' and county is not null",
+  where = "date >= '2016-01-01T00:00:00.000' and county is not null and county_number is not null",
   order = "date_trunc_ym(date)",
   limit = 999999
 )
@@ -64,7 +64,7 @@ category_url <- url_builder(
   dataset_url = 'https://data.iowa.gov/resource/m3tr-qhgy.csv?',
   select = "date_trunc_ym(date) as year_mon, category_name, sum(state_bottle_cost * sale_bottles) as state_cost, sum(sale_bottles) as bottles_sold, sum(sale_dollars) as retail_revenue, sum(sale_liters) as liters_sold",
   group = "date_trunc_ym(date), category_name",
-  where = "date >= '2012-01-01T00:00:00.000' and county is not null",
+  where = "date >= '2016-01-01T00:00:00.000' and county is not null and county_number is not null",
   order = "date_trunc_ym(date)",
   limit = 999999
 )
@@ -74,6 +74,31 @@ category_sales <- get_results(url = category_url)
 
 head(county_sales)
 head(category_sales)
+
+str(county_sales)
+str(category_sales)
+
+# rearrange county_sales columns & remove attributes
+county_sales <- county_sales %>%
+  dplyr::transmute(
+    year_mon,
+    county,
+    county_number = as.integer(county_number),
+    state_cost,
+    retail_revenue,
+    bottles_sold,
+    liters_sold
+  ) %>%
+  dplyr::group_by(
+    year_mon,
+    county,
+    county_number,
+    state_cost,
+    retail_revenue,
+    bottles_sold,
+    liters_sold
+  ) %>%
+  dplyr::ungroup()
 
 # need to convert category_name to all lower case
 category_sales <- category_sales %>%
@@ -95,7 +120,7 @@ category_sales <- category_sales %>%
 # clear up names & add a higher level category called type
 category_sales <- category_sales %>%
   dplyr::mutate(
-    type = case_when(
+    type = dplyr::case_when(
       is.na(category_name) ~ 'unknown',
       stringr::str_detect(string = category_name, pattern = 'vodka') ~ 'vodka',
       stringr::str_detect(string = category_name, pattern = 'gin') & !stringr::str_detect(string = category_name, pattern = 'virgin')  ~ 'gin',

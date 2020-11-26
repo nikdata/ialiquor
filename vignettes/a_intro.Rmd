@@ -1,0 +1,58 @@
+---
+title: "Overview of Datasets"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview of Datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The {ialiquor} package contains two datasets that summarize the monthly Class E liquor sales (along with other attributes) in the State of Iowa.
+
+The `county_sales` dataset contains the following fields:
+
+- `year_mon` - The Year and month in YYYY-MM-DD format
+- `county` - Name of county
+- `county number` - County number (there are 99 counties in Iowa)
+- `state_cost` - Amount paid for the liquor by the State of Iowa in US$ (not normalized)
+- `bottles_sold` - Number of bottles sold (regardless of size of bottle or volume)
+- `retail_revenue` - Amount paid by retail vendors for the alcohol in US$ (not normalized). This field tallies the total retail revenue for all retailers within the respective county.
+- `liters_sold` - Volume of liquor sold (in liters)
+
+The `category_sales` dataset contains the following fields:
+
+- `year_mon` - The Year and month in YYYY-MM-DD format
+- `type` - a high level categorization of the type of liquor (e.g., vodka, whiskey, rum, etc.)
+- `category` - a second level categorization of the type of liquor (e.g., flavored vodka, scotch, bourbon, spiced rum, etc.)
+- `state_cost` - Amount paid for the liquor by the State of Iowa in US$ (not normalized)
+- `bottles_sold` - Number of bottles sold (regardless of size of bottle or volume)
+- `retail_revenue` - Amount paid by retail vendors for the alcohol in US$ (not normalized). This field tallies the total retail revenue for all retailers within the respective county.
+- `liters_sold` - Volume of liquor sold (in liters)
+
+**Data Source**: Iowa Data Portal [API](https://data.iowa.gov/resource/m3tr-qhgy.csv)
+
+
+```{r}
+library(ialiquor)
+
+str(county_sales)
+
+head(county_sales)
+
+```
+
+```{r}
+library(ialiquor)
+
+str(category_sales)
+
+head(category_sales)
+```
+
