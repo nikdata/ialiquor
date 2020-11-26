@@ -41,3 +41,5 @@ vignettes/*.pdf
 
 # Mac Extras
 .DS_Store
+inst/doc
+
