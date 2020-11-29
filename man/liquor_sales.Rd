@@ -7,7 +7,7 @@
 \format{
 a data frame with 10 variables.
 \describe{
-\item{year}{The year in which the sale occurred}.
+\item{year}{The year in which the sale occurred.}
 \item{year_month}{This is an aggregated value indicating the month and year in YYYY-MM-DD format.}
 \item{county}{The county in which the sale occurred.}
 \item{population}{The population of the county of the year of sale as recorded by the US Census Bureau. NA values indicate no census data were found on the Iowa Data Portal.}
@@ -20,7 +20,7 @@ a data frame with 10 variables.
 }
 }
 \source{
-State of Iowa Data Portal \href{https://data.iowa.gov/resource/m3tr-qhgy.csv}{website}
+State of Iowa Data API \href{https://data.iowa.gov/resource/m3tr-qhgy.csv}{website}
 }
 \usage{
 liquor_sales
