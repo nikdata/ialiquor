@@ -1,9 +1,7 @@
-## code to prepare `DATASET` dataset goes here
-
-# import
+# import pipe
 `%>%` <- magrittr::`%>%`
 
-# Data retrieval
+# Data retrieval ----
 
 # define function to build the Socrata SoQL URL - CAUTION: No error handling built here
 url_builder <- function(dataset_url, select, group, where, order, limit) {
@@ -38,88 +36,48 @@ get_results <- function(url) {
   
   ans = tibble::tibble(as.data.frame(content))
   
-  # ans <- url %>%
-  #   httr::GET(
-  #     httr::authenticate(user = email, password = pw),
-  #     httr::add_headers("X-App-Token" = api_token)
-  #   ) %>%
-  #   httr::content() %>%
-  #   as.data.frame() %>%
-  #   tibble::tibble()
-  
   return(ans)
 }
 
-# define the parameters
-county_url <- url_builder(
-  dataset_url = 'https://data.iowa.gov/resource/m3tr-qhgy.csv?',
-  select = "date_trunc_ym(date) as year_mon, county, county_number, sum(state_bottle_cost * sale_bottles) as state_cost, sum(sale_bottles) as bottles_sold, sum(sale_dollars) as retail_revenue, sum(sale_liters) as liters_sold",
-  group = "date_trunc_ym(date), county, county_number",
-  where = "date >= '2016-01-01T00:00:00.000' and county is not null and county_number is not null",
-  order = "date_trunc_ym(date)",
+# define the URLs
+
+pop_url <- url_builder(
+  dataset_url = 'https://data.iowa.gov/resource/qtnr-zsrc.csv?',
+  select = 'geographicname as county, date_extract_y(year) as cal_year, population',
+  group = "",
+  where = "date_extract_y(year)>=2015",
+  order = "geographicname, date_extract_y(year)",
   limit = 999999
 )
 
-category_url <- url_builder(
+all_url <- url_builder(
   dataset_url = 'https://data.iowa.gov/resource/m3tr-qhgy.csv?',
-  select = "date_trunc_ym(date) as year_mon, category_name, sum(state_bottle_cost * sale_bottles) as state_cost, sum(sale_bottles) as bottles_sold, sum(sale_dollars) as retail_revenue, sum(sale_liters) as liters_sold",
-  group = "date_trunc_ym(date), category_name",
-  where = "date >= '2016-01-01T00:00:00.000' and county is not null and county_number is not null",
+  select = "date_trunc_ym(date) as year_month, county, category_name, sum(state_bottle_cost * sale_bottles) as state_cost, sum(sale_bottles) as bottles_sold, sum(sale_dollars) as state_revenue, sum(sale_liters) as volume",
+  group = "date_trunc_ym(date), county, category_name",
+  where = "date >= '2015-01-01T00:00:00.000' and county is not null",
   order = "date_trunc_ym(date)",
-  limit = 999999
+  limit = 9999999
+  
 )
 
-county_sales <- get_results(url = county_url)
-category_sales <- get_results(url = category_url)
+# retrive the results
+population <- get_results(url = pop_url)
+liquor_sales <- get_results(url = all_url)
 
-head(county_sales)
-head(category_sales)
+# Preview ----
+head(population)
+head(liquor_sales)
 
-str(county_sales)
-str(category_sales)
+str(population)
+str(liquor_sales)
 
-# rearrange county_sales columns & remove attributes
-county_sales <- county_sales %>%
-  dplyr::transmute(
-    year_mon,
-    county,
-    county_number = as.integer(county_number),
-    state_cost,
-    retail_revenue,
-    bottles_sold,
-    liters_sold
-  ) %>%
-  dplyr::group_by(
-    year_mon,
-    county,
-    county_number,
-    state_cost,
-    retail_revenue,
-    bottles_sold,
-    liters_sold
-  ) %>%
-  dplyr::ungroup()
+# Data Cleaning ----
 
-# need to convert category_name to all lower case
-category_sales <- category_sales %>%
+# clean up liquor sales
+liquor_sales <- liquor_sales %>%
   dplyr::mutate(
-    category_name = stringr::str_to_lower(category_name)
-  ) %>%
-  dplyr::group_by(
-    year_mon, category_name
-  ) %>%
-  dplyr::summarize(
-    state_cost = sum(state_cost),
-    bottles_sold = sum(bottles_sold),
-    retail_revenue = sum(retail_revenue),
-    liters_sold = sum(liters_sold),
-    .groups = 'keep'
-  ) %>%
-  dplyr::ungroup()
-
-# clear up names & add a higher level category called type
-category_sales <- category_sales %>%
-  dplyr::mutate(
+    county = tolower(county),
+    category_name = tolower(category_name),
     type = dplyr::case_when(
       is.na(category_name) ~ 'unknown',
       stringr::str_detect(string = category_name, pattern = 'vodka') ~ 'vodka',
@@ -133,23 +91,51 @@ category_sales <- category_sales %>%
       stringr::str_detect(string = category_name, pattern = 'amaretto') | stringr::str_detect(string = category_name, pattern = 'liqueur') | stringr::str_detect(string = category_name, pattern = 'anise') | stringr::str_detect(string = category_name, pattern = 'creme') ~ 'liqueur',
       stringr::str_detect(string = category_name, pattern = 'rock') | stringr::str_detect(string = category_name, pattern = 'cocktail') ~ 'cocktail',
       TRUE ~ 'other'
+    ),
+    category_name = dplyr::case_when(
+      stringr::str_detect(string = category_name, pattern = 'american cordials & liqueurs') ~ 'american cordials & liqueur',
+      stringr::str_detect(string = category_name, pattern = 'american distilled spirits specialty') ~ 'american distilled spirit specialty',
+      stringr::str_detect(string = category_name, pattern = 'flavored gins') ~ 'flavored gin',
+      stringr::str_detect(string = category_name, pattern = 'american vodkas') ~ 'american vodka',
+      stringr::str_detect(string = category_name, pattern = 'cocktails /rtd') ~ 'cocktails / rtd',
+      stringr::str_detect(string = category_name, pattern = 'imported cordials & liqueurs') ~ 'imported cordials & liqueur',
+      stringr::str_detect(string = category_name, pattern = 'imported distilled spirits specialty') ~ 'imported distilled spirit specialty',
+      stringr::str_detect(string = category_name, pattern = 'imported vodkas') ~ 'imported vodka',
+      stringr::str_detect(string = category_name, pattern = 'temporary  & specialty packages') | stringr::str_detect(string = category_name, pattern = 'temporary &  specialty packages') ~ 'temporary & specialty packages',
+      TRUE ~ category_name
     )
+  ) %>%
+  dplyr::group_by(
+    year_month, county, category_name, type
+  ) %>%
+  dplyr::summarize(
+    state_cost = sum(state_cost),
+    bottles_sold = sum(bottles_sold),
+    state_revenue = sum(state_revenue),
+    volume = sum(volume),
+    .groups = 'keep'
+  ) %>%
+  dplyr::ungroup()
+
+# remove word county from `county` and make all lowercase
+population <- population %>%
+  dplyr::mutate(
+    county = tolower(gsub(pattern = ' County', replacement = '', x = county)),
+  ) %>%
+  dplyr::rename(
+    year = cal_year
   )
 
-# rearrange columns
-category_sales <- category_sales %>%
-  dplyr::transmute(
-    year_mon,
-    type,
-    category = category_name,
-    state_cost,
-    retail_revenue,
-    bottles_sold,
-    liters_sold
-  )
+# combine liquor sales and population
+liquor_sales <- liquor_sales %>%
+  dplyr::mutate(
+    year = lubridate::year(year_month)
+  ) %>%
+  dplyr::left_join(population, by = c('year','county')) %>%
+  dplyr::select(year, year_month, county, population, type, category_name, state_cost, state_revenue, bottles_sold, volume) %>%
+  dplyr::rename(category = category_name)
 
-write.csv(county_sales, 'csv/county_sales.csv', row.names = FALSE)
-write.csv(category_sales, 'csv/category_sales.csv', row.names = FALSE)
+# Write out data ----
+write.csv(liquor_sales, 'csv/liquor_sales.csv', row.names = FALSE)
 
-usethis::use_data(county_sales, overwrite = TRUE)
-usethis::use_data(category_sales, overwrite = TRUE)
+usethis::use_data(liquor_sales, overwrite = TRUE, compress = 'xz')

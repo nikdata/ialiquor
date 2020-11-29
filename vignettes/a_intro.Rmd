@@ -14,27 +14,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-The {ialiquor} package contains two datasets that summarize the monthly Class E liquor sales (along with other attributes) in the State of Iowa.
+The {ialiquor} package provides a dataset summarizing the the monthly Class E liquor sales (along with other attributes) in the State of Iowa.
 
-The `county_sales` dataset contains the following fields:
+The `liquor_sales` dataset contains the following fields:
 
-- `year_mon` - The Year and month in YYYY-MM-DD format
-- `county` - Name of county
-- `county number` - County number (there are 99 counties in Iowa)
-- `state_cost` - Amount paid for the liquor by the State of Iowa in US$ (not normalized)
+- `year` - The year in which the sale information was recorded
+- `year_mon` - The year and month of the sale in YYYY-MM-DD format (already in date-time format)
+- `county` - Name of county where sale occurred
+- `population` - The population of the county for that year (based on US Census Bureau data and retrieved via the Iowa Data Portal [API](https://data.iowa.gov/resource/qtnr-zsrc.csv))
+- `type` - A high level grouping variable to classify common categories
+- `category` - A grouping variable defined by the State to classify brands of liquor
+- `state_cost` - Amount paid for the liquor by the State of Iowa in US$ (not adjusted for inflation)
+- `state_revenue` - Amount paid to the State of Iowa by the retailers (all retailers in county) in US$ (not adjusted for inflation)
 - `bottles_sold` - Number of bottles sold (regardless of size of bottle or volume)
-- `retail_revenue` - Amount paid by retail vendors for the alcohol in US$ (not normalized). This field tallies the total retail revenue for all retailers within the respective county.
-- `liters_sold` - Volume of liquor sold (in liters)
-
-The `category_sales` dataset contains the following fields:
-
-- `year_mon` - The Year and month in YYYY-MM-DD format
-- `type` - a high level categorization of the type of liquor (e.g., vodka, whiskey, rum, etc.)
-- `category` - a second level categorization of the type of liquor (e.g., flavored vodka, scotch, bourbon, spiced rum, etc.)
-- `state_cost` - Amount paid for the liquor by the State of Iowa in US$ (not normalized)
-- `bottles_sold` - Number of bottles sold (regardless of size of bottle or volume)
-- `retail_revenue` - Amount paid by retail vendors for the alcohol in US$ (not normalized). This field tallies the total retail revenue for all retailers within the respective county.
-- `liters_sold` - Volume of liquor sold (in liters)
+- `volume` - Volume of liquor sold (in liters)
 
 **Data Source**: Iowa Data Portal [API](https://data.iowa.gov/resource/m3tr-qhgy.csv)
 
@@ -42,17 +35,16 @@ The `category_sales` dataset contains the following fields:
 ```{r}
 library(ialiquor)
 
-str(county_sales)
+str(liquor_sales)
 
-head(county_sales)
+head(liquor_sales)
 
 ```
 
-```{r}
-library(ialiquor)
+## Background on Data
 
-str(category_sales)
+The State of Iowa records daily transactions for Class E liquor sales and makes them available to the public monthly. The original dataset (found through the Iowa Data Portal) consists of more granular information such as liquor sales by vendor/retailer. Furthermore, the population data were also obtained from the Iowa Data Portal [API](https://data.iowa.gov/Community-Demographics/County-Population-in-Iowa-by-Year/qtnr-zsrc). This information is derived from the US Census Bureau. As of November 2020, no current population data were available for any county in Iowa from the aforementioned API.
 
-head(category_sales)
-```
+# Data Cleaning
 
+The only 'cleaning' done during the data acquisition phase was to ensure that no null values were present for county. Furthermore, the results were aggregated to a monthly level and the variable `type` was derived to create a higher level grouping.

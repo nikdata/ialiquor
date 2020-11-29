@@ -1,14 +1,14 @@
 Package: ialiquor
 Type: package
-Title: Monthly Iowa Liquor Sales By County And Category
-Version: 0.0.0.9000
+Title: Monthly Iowa Liquor Sales Summary
+Version: 0.1.0
 Authors@R: 
     person(given = "Nikhil",
            family = "Agarwal",
            role = c("aut", "cre"),
-           email = "nik@makusafe.com",
+           email = "gitnik@niks.me",
            comment = c(ORCID = "0000-0003-1470-7472"))
-Description: Provides monthly statistics on Iowa liquor (class E) sales and revenue by county and category such as whiskey, schnapps, etc. Data source: Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>
+Description: Provides a monthly summary on Iowa liquor (class E) sales. Data source: Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
