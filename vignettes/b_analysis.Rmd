@@ -110,10 +110,9 @@ Now this is interesting. Seems as if Dickinson county has the highest revenue pe
 
 ### Top Types of Liquor by Profit to State
 
-Perhaps it is interesting to look at the profit to the state by type of liquor over time. 
+Perhaps it is interesting to look at the profit to the state by type of liquor over time.
 
 ```{r, message=FALSE, warning = FALSE, fig.height=5, fig.width=8}
-
 liquor %>%
   filter(!type %in% c('beer','other','unknown')) %>%
   mutate(
@@ -121,27 +120,20 @@ liquor %>%
   ) %>%
   group_by(year, type) %>%
   summarize(
-    total_profit = sum(profit),
+    total_profit = sum(profit) / 1000000,
     .groups = 'drop'
   ) %>%
-  plotly::plot_ly(
-    x = ~year,
-    y = ~total_profit,
-    color = ~type,
-    type = 'scatter',
-    mode = 'lines'
-  ) %>%
-  plotly::layout(
+  ggplot(aes(x = year)) +
+  geom_line(aes(y = total_profit, col = type)) +
+  labs(
+    x = "Year Month", 
+    y = "Profit in Million US$ (not adjusted for Inflation)", 
     title = "Annual Profit from Class E Liquor Sales by Liquor Type",
-    yaxis = list(title = "Profit in US$"),
-    xaxis = list(title = "Year"),
-    annotations = list(x = 1.2, y = -0.1,
-                       text = "Source: Iowa Data Portal",
-                       showarrow = F, xref = 'paper', yref = 'paper',
-                       font = list(size = 10, color = 'darkblue'))
+    caption = 'Source: Iowa Data Portal',
+    color = 'Liquor Type'
   )
-
 ```
+
 From the chart above, we can see that whiskey, vodka, and rum account for quite a bit of profit for the state as compared to the other types of liquor. Anecdotally speaking, when I shop at my local liquor store, I do find many types of whiskeys. However, I'm surprised to see rum in the top three as I don't see as many rum varieties as compared to tequila or liqueur.
 
 ### Top Profit Makers for 2019
@@ -149,8 +141,7 @@ From the chart above, we can see that whiskey, vodka, and rum account for quite 
 Let's focus on 2019 and see which types of liquor accounted for the vast majority. For this, we'll make a pie chart. The conclusions may be similar to before, but in this case, we can see the impact of the different types for one year a bit more clearly.
 
 ```{r, fig.height=5, fig.width=8}
-
-liquor %>%
+profit <- liquor %>%
   filter(!type %in% c('beer','other','unknown')) %>%
   mutate(
     profit = state_revenue - state_cost
@@ -158,138 +149,50 @@ liquor %>%
   filter(year == 2019) %>%
   group_by(type) %>%
   summarize(
-    total_profit = sum(profit),
+    total_profit = round(sum(profit) / 1000000 , 0),
     .groups = 'drop'
   ) %>%
-  plotly::plot_ly(
-    labels = ~type,
-    values = ~total_profit
-  ) %>%
-  plotly::add_pie(hole = 0.4) %>%
-  plotly::layout(
-  title = "2019 Profit Percentage by Liquor Type",
-  annotations = list(x = 1.2, y = -0.1,
-                     text = "Source: Iowa Data Portal",
-                     showarrow = F, xref = 'paper', yref = 'paper',
-                     font = list(size = 10, color = 'darkblue'))
-  )
-
-```
-
-### Top Categories for 2019
-
-While the `type` variable is derived by me (the package author), the `category` variable is determined by the State of Iowa. The following tree map illustrates the breakdown of the different categories that resulted in the highest profit to the state.
-
-```{r, fig.height=5, fig.width=8}
-liquor %>%
-  filter(!type %in% c('beer','other','unknown')) %>%
+  ungroup() %>%
   mutate(
-    profit = state_revenue - state_cost
+    pct = paste0((round(total_profit / sum(total_profit) , 2)) * 100,'%')
   ) %>%
-  filter(year == 2019) %>%
-  group_by(type, category) %>%
-  summarize(
-    total_profit = sum(profit),
-    .groups = 'drop'
-  ) %>%
-  plotly::plot_ly(
-    labels = ~category,
-    values = ~total_profit,
-    type = 'treemap',
-    parents = NA,
-    name = 'test',
-    textinfo="label+value parent"
-  ) %>%
-  plotly::layout(
-  title = "2019 Highest Profit Categories",
-  annotations = list(x = 1, y = -0.1,
-                     text = "Source: Iowa Data Portal",
-                     showarrow = F, xref = 'paper', yref = 'paper',
-                     font = list(size = 10, color = 'darkblue'))
+  arrange(desc(type)) %>%
+  mutate(lab.ypos = cumsum(total_profit) - 0.5*total_profit)
+
+profit %>%
+  ggplot(aes(x = "", y = total_profit, fill = type)) +
+  geom_bar(width = 1, stat = 'identity', color = 'white') +
+  coord_polar("y", start = 0) +
+  geom_text(aes(y = lab.ypos, label = pct), color = 'white') +
+  theme_void() +
+  labs(
+    fill = 'Liquor Type',
+    title = '2019 Profit Percentage by Liquor Type',
+    caption = 'Source: Iowa Data Portal'
   )
+
 ```
 
-It is interesting to see that 'american vodka' and 'canadian whiskeys' contributed the most to the 2019 profit. While this dataset does not contain specific brands, we can tap into the API to find the brands associated with 'american vodka' or 'canadian whiskies'. Personally, I'm a fan of scotch (type of whiskey from Scotland) and it seems as if that type of whiskey is not very popular in Iowa!
 
 ### Proportion of Costs to State
 
-Last but not least, let's take a look at the proportion of costs to the state. These are costs paid by the state to purchase the liquor from the appropriate vendors.
+Last but not least, let’s take a look at the proportion of costs to the state. These are costs paid by the state to purchase the liquor from the appropriate vendors.
 
 ```{r, fig.height=5, fig.width=8}
 liquor_sales %>%
   filter(!type %in% c('beer','other','unknown')) %>%
   group_by(year_month, type) %>%
   summarize(total_cost = sum(state_cost), .groups = 'drop') %>%
-  tidyr::pivot_wider(
-    names_from = type,
-    values_from = total_cost
-  ) %>%
   ungroup() %>%
-  as.data.frame() %>%
-  plotly::plot_ly(
-    x = ~year_month,
-    y = ~brandy,
-    name = 'Brandy',
-    type = 'scatter',
-    mode = 'none',
-    stackgroup = 'one',
-    groupnorm = 'percent',
-    fillcolor = 'magenta'
+  group_by(year_month) %>%
+  mutate(
+    cost_pct = round(total_cost / sum(total_cost) , 2)
   ) %>%
-  plotly::add_trace(
-    y = ~cocktail,
-    name = 'Cocktail',
-    fillcolor = 'green'
-  ) %>%
-  plotly::add_trace(
-    y = ~gin,
-    name = 'Gin',
-    fillcolor = 'skyblue'
-  ) %>%
-  plotly::add_trace(
-    y = ~liqueur,
-    name = 'Liqueur',
-    fillcolor = 'orange'
-  ) %>%
-  plotly::add_trace(
-    y = ~rum,
-    name = 'rum',
-    fillcolor = 'brown'
-  ) %>%
-  plotly::add_trace(
-    y = ~schnapps,
-    name = 'Schnapps',
-    fillcolor = 'darkgreen'
-  ) %>%
-  plotly::add_trace(
-    y = ~tequila,
-    name = 'Tequila',
-    fillcolor = 'gold'
-  ) %>%
-  plotly::add_trace(
-    y = ~vodka,
-    name = 'Vodka',
-    fillcolor = 'cyan'
-  ) %>%
-  plotly::add_trace(
-    y = ~whiskey,
-    name = 'Whiskey',
-    fillcolor = 'mustard'
-  ) %>%
-  plotly::layout(
-    title = 'State Costs of Purchasing Liquor from Vendors',
-    yaxis = list(
-      title = 'Proportion of Cost (US$ - Not Adjusted for Inflation)', 
-      showgrid = F, 
-      ticksuffix = '%'),
-    xaxis = list(
-      title = 'Year/Month', 
-      showgrid = F),
-    annotations = list(x = 1.2, y = -0.1,
-                     text = "Source: Iowa Data Portal",
-                     showarrow = F, xref = 'paper', yref = 'paper',
-                     font = list(size = 10, color = 'darkblue'))
-  )
+  ggplot(aes(x = year_month, y = cost_pct, fill = type)) +
+  geom_area(alpha = 0.8, color = 'steelblue') +
+  labs(y = 'Proportion of Cost (US$ - Not Adjusted for Inflation)',
+       x = 'Year/Month',
+       title = 'Proportion of State Costs of Purchasing Liquor From Vendors',
+       caption = 'Source: Iowa Data Portal')
 ```
 
-It is not suprising to see that whiskey, rum, and vodka continue to have the most cost. Much of this can be attributed to the quantity the state purchases.

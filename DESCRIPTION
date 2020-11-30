@@ -1,5 +1,4 @@
 Package: ialiquor
-Type: package
 Title: Monthly Iowa Liquor Sales Summary
 Version: 0.1.0
 Authors@R: 
@@ -8,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "gitnik@niks.me",
            comment = c(ORCID = "0000-0003-1470-7472"))
-Description: Provides a monthly summary on Iowa liquor (class E) sales. Data source: Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>
+Description: Provides a monthly summary on Iowa liquor (class E) sales. Data source: Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -21,5 +20,6 @@ Suggests:
     knitr,
     ggplot2,
     rmarkdown,
-    plotly
+    plotly,
+    tidyr
 VignetteBuilder: knitr
