@@ -7,7 +7,10 @@ Authors@R:
            role = c("aut", "cre"),
            email = "gitnik@niks.me",
            comment = c(ORCID = "0000-0003-1470-7472"))
-Description: Provides a monthly summary on Iowa liquor (class E) sales. Data source: Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>.
+Description: Provides a monthly summary of Iowa liquor (class E) sales from January 2015
+    to October 2020. See the ggplot2 website for more information, 
+    documentation and examples. Data source: 
+    Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -19,7 +22,5 @@ Suggests:
     dplyr,
     knitr,
     ggplot2,
-    rmarkdown,
-    plotly,
-    tidyr
+    rmarkdown
 VignetteBuilder: knitr

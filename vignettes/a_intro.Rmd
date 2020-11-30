@@ -45,6 +45,6 @@ head(liquor_sales)
 
 The State of Iowa records daily transactions for Class E liquor sales and makes them available to the public monthly. The original dataset (found through the Iowa Data Portal) consists of more granular information such as liquor sales by vendor/retailer. Furthermore, the population data were also obtained from the Iowa Data Portal [API](https://data.iowa.gov/Community-Demographics/County-Population-in-Iowa-by-Year/qtnr-zsrc). This information is derived from the US Census Bureau. As of November 2020, no current population data were available for any county in Iowa from the aforementioned API.
 
-# Data Cleaning
+## Data Cleaning
 
 The only 'cleaning' done during the data acquisition phase was to ensure that no null values were present for county. Furthermore, the results were aggregated to a monthly level and the variable `type` was derived to create a higher level grouping.

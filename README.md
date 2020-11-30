@@ -48,9 +48,9 @@ devtools::install_github("nikdata/ialiquor", ref = "main")
 
 ## Usage
 
-The {ialiquor} package provides a monthly summary (from January 2015
-onward) of the alcohol (class E) sales in the State of Iowa. Several
-attributes are available in the dataset such as county, county
+The {ialiquor} package provides a monthly summary (from January 2015 to
+October 2020) of the alcohol (class E) sales in the State of Iowa.
+Several attributes are available in the dataset such as county, county
 population, the type (derived by me) of alcohol, the category of the
 alcohol (as defined by the State of Iowa). Furthermore, numerical
 summaries are available for cost, revenue, bottles sold, and volume.

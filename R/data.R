@@ -2,7 +2,7 @@
 #' 
 #' @description Monthly summary of the different Class E liquor sales in State of Iowa
 #' 
-#' @details This dataset contains an aggregated view (aggregated by multiple attributes) of the sales data for Class E liquor. The dataset has been pre-processed to remove NULL values from the county and county number variables. See vignette for more details
+#' @details This dataset contains an aggregated view (aggregated by multiple attributes) of the sales data for Class E liquor. The dataset has been pre-processed to remove NULL values from the county variable. See vignette for more details
 #' 
 #' @format a data frame with 10 variables.
 #' \describe{
@@ -18,7 +18,7 @@
 #'   \item{volume}{The volume sold (in liters) by the state to a retailer.}
 #' }
 #' 
-#' @source State of Iowa Data API \href{https://data.iowa.gov/resource/m3tr-qhgy.csv}{website}
+#' @source State of Iowa Data \href{https://data.iowa.gov/resource/m3tr-qhgy.csv}{API}
 #' @keywords datasets timeseries liquor revenue
 #' 
 "liquor_sales"
