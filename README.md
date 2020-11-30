@@ -9,7 +9,7 @@
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![GitHub
-commit](https://img.shields.io/github/last-commit/nikdata/ialiquor)](https://github.com/nikdata/ialiquor/commit/master)
+commit](https://img.shields.io/github/last-commit/nikdata/ialiquor)](https://github.com/nikdata/ialiquor/commit/main)
 <!-- badges: end -->
 
 The **{ialiquor}** package provides a summary of the monthly liquor
