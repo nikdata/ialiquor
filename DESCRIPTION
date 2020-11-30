@@ -8,7 +8,7 @@ Authors@R:
            email = "gitnik@niks.me",
            comment = c(ORCID = "0000-0003-1470-7472"))
 Description: Provides a monthly summary of Iowa liquor (class E) sales from January 2015
-    to October 2020. See the ialiquor website for more information, 
+    to October 2020. See the package website for more information, 
     documentation and examples. Data source: 
     Iowa Data portal <https://data.iowa.gov/resource/m3tr-qhgy.csv>.
 License: MIT + file LICENSE
