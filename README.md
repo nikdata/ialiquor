@@ -5,6 +5,7 @@
 
 <!-- badges: start -->
 
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/ialiquor)](https://cran.r-project.org/package=ialiquor)
 [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![License:
 MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -35,11 +36,15 @@ state based on the price sold to the retailer. It is important to keep
 in mind that these revenue values are not indicative of the actual sale
 price to the end customer.
 
-**WIP**
-
 ## Installation
 
-This package is not available on CRAN, but can be installed from GitHub:
+Install the stable version from CRAN:
+
+``` r
+install.packages('ialiquor')
+```
+
+or install the development version from GitHub::
 
 ``` r
 # install.packages("devtools")
