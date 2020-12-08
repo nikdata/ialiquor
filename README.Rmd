@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# ialiquor
+# ialiquor <a href='https://nikdata.github.io/ialiquor/'><img src='man/figures/ialiquor.png' align="right" width="150" height="150" /></a>
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/ialiquor)](https://cran.r-project.org/package=ialiquor)

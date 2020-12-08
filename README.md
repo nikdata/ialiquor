@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ialiquor
+# ialiquor <a href='https://nikdata.github.io/ialiquor/'><img src='man/figures/ialiquor.png' align="right" width="150" height="150" /></a>
 
 <!-- badges: start -->
 
